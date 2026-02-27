@@ -1,1 +1,1315 @@
-test
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Antigravity Monitor — Real-Time Quota Dashboard for Antigravity IDE</title>
+  <meta name="description"
+    content="100% local & secure quota monitor for Antigravity IDE. Real-time dashboard, usage analytics, cache management, and intelligent auto-accept. Zero telemetry.">
+  <meta name="keywords"
+    content="antigravity, monitor, quota, VS Code extension, auto-accept, gemini, claude, gpt, dashboard, credits, open source, free, local">
+  <meta name="theme-color" content="#0a0e17">
+  <link rel="canonical" href="https://nextcortex.github.io/">
+  <meta name="author" content="NextCortex">
+  <meta property="og:title" content="Antigravity Monitor — by NextCortex">
+  <meta property="og:description"
+    content="100% local quota monitor for Antigravity IDE with real-time dashboard and auto-accept.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://nextcortex.github.io">
+  <meta property="og:image" content="https://nextcortex.github.io/assets/screenshot.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Antigravity Monitor — Real-Time Quota Dashboard">
+  <meta name="twitter:description"
+    content="100% local quota monitor for Antigravity IDE with real-time dashboard and auto-accept.">
+  <meta name="twitter:image" content="https://nextcortex.github.io/assets/screenshot.png">
+  <link rel="icon" type="image/png" href="assets/icon.png">
+  <link rel="apple-touch-icon" href="assets/icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+  <style>
+    /* ── Reset & Base ── */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-primary: #0a0a0f;
+      --bg-secondary: #12121a;
+      --bg-card: rgba(255, 255, 255, 0.03);
+      --bg-card-hover: rgba(255, 255, 255, 0.06);
+      --text-primary: #e8e8ef;
+      --text-secondary: #8b8b9e;
+      --text-dim: #5a5a6e;
+      --accent-blue: #4f8fff;
+      --accent-purple: #8b5cf6;
+      --accent-green: #10b981;
+      --accent-pink: #ec4899;
+      --accent-orange: #f59e0b;
+      --gradient-main: linear-gradient(135deg, #4f8fff 0%, #8b5cf6 50%, #ec4899 100%);
+      --gradient-subtle: linear-gradient(135deg, rgba(79, 143, 255, 0.1) 0%, rgba(139, 92, 246, 0.1) 50%, rgba(236, 72, 153, 0.1) 100%);
+      --border: rgba(255, 255, 255, 0.06);
+      --glow-blue: 0 0 60px rgba(79, 143, 255, 0.15);
+      --glow-purple: 0 0 60px rgba(139, 92, 246, 0.15);
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Animated Background ── */
+    .bg-glow {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .bg-glow .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.3;
+      animation: float 20s ease-in-out infinite;
+    }
+
+    .bg-glow .orb:nth-child(1) {
+      width: 600px;
+      height: 600px;
+      background: var(--accent-blue);
+      top: -200px;
+      left: -100px;
+      animation-delay: 0s;
+    }
+
+    .bg-glow .orb:nth-child(2) {
+      width: 500px;
+      height: 500px;
+      background: var(--accent-purple);
+      top: 40%;
+      right: -150px;
+      animation-delay: -7s;
+    }
+
+    .bg-glow .orb:nth-child(3) {
+      width: 400px;
+      height: 400px;
+      background: var(--accent-pink);
+      bottom: -100px;
+      left: 30%;
+      animation-delay: -14s;
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translate(0, 0) scale(1);
+      }
+
+      25% {
+        transform: translate(30px, -40px) scale(1.05);
+      }
+
+      50% {
+        transform: translate(-20px, 20px) scale(0.95);
+      }
+
+      75% {
+        transform: translate(40px, 30px) scale(1.02);
+      }
+    }
+
+    /* ── Container ── */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Navigation ── */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 16px 0;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(20px);
+      background: rgba(10, 10, 15, 0.7);
+      border-bottom: 1px solid transparent;
+    }
+
+    nav.scrolled {
+      border-bottom-color: var(--border);
+    }
+
+    nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 18px;
+      text-decoration: none;
+      color: var(--text-primary);
+    }
+
+    .nav-brand svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--text-primary);
+    }
+
+    .nav-cta {
+      padding: 8px 20px;
+      background: rgba(236, 72, 153, 0.15);
+      border: 1px solid rgba(236, 72, 153, 0.4);
+      border-radius: 8px;
+      color: #f472b6;
+      font-weight: 600;
+      font-size: 13px;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .nav-cta:hover {
+      background: rgba(236, 72, 153, 0.25);
+      color: #f9a8d4;
+      transform: translateY(-1px);
+    }
+
+    .nav-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--text-primary);
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 120px 24px 80px;
+    }
+
+    .hero-content {
+      max-width: 800px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 32px;
+      animation: fadeUp 0.8s ease forwards;
+      opacity: 0;
+    }
+
+    .hero-badge .dot {
+      width: 8px;
+      height: 8px;
+      background: var(--accent-green);
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.5;
+        transform: scale(0.8);
+      }
+    }
+
+    .hero h1 {
+      font-size: clamp(40px, 7vw, 72px);
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      margin-bottom: 24px;
+      animation: fadeUp 0.8s 0.1s ease forwards;
+      opacity: 0;
+    }
+
+    .hero h1 .gradient-text {
+      background: var(--gradient-main);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: clamp(16px, 2.5vw, 20px);
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto 40px;
+      line-height: 1.7;
+      animation: fadeUp 0.8s 0.2s ease forwards;
+      opacity: 0;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      animation: fadeUp 0.8s 0.3s ease forwards;
+      opacity: 0;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      background: var(--gradient-main);
+      border: none;
+      border-radius: var(--radius-sm);
+      color: white;
+      font-weight: 600;
+      font-size: 15px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(79, 143, 255, 0.3);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-weight: 600;
+      font-size: 15px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-card-hover);
+      border-color: rgba(255, 255, 255, 0.12);
+      transform: translateY(-2px);
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ── Stats Bar ── */
+    .stats-bar {
+      display: flex;
+      justify-content: center;
+      gap: 48px;
+      padding: 40px 0;
+      margin: 0 auto;
+      max-width: 700px;
+      animation: fadeUp 0.8s 0.5s ease forwards;
+      opacity: 0;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 800;
+      background: var(--gradient-main);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: var(--text-dim);
+      margin-top: 4px;
+    }
+
+    /* ── Section ── */
+    section {
+      padding: 100px 0;
+    }
+
+    .section-header {
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto 60px;
+    }
+
+    .section-label {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--accent-blue);
+      margin-bottom: 16px;
+    }
+
+    .section-header h2 {
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+
+    .section-header p {
+      font-size: 16px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    /* ── Features Grid ── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--gradient-main);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .feature-card:hover {
+      background: var(--bg-card-hover);
+      border-color: rgba(255, 255, 255, 0.1);
+      transform: translateY(-4px);
+      box-shadow: var(--glow-purple);
+    }
+
+    .feature-card:hover::before {
+      opacity: 1;
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    .feature-icon.blue {
+      background: rgba(79, 143, 255, 0.12);
+    }
+
+    .feature-icon.purple {
+      background: rgba(139, 92, 246, 0.12);
+    }
+
+    .feature-icon.green {
+      background: rgba(16, 185, 129, 0.12);
+    }
+
+    .feature-icon.pink {
+      background: rgba(236, 72, 153, 0.12);
+    }
+
+    .feature-icon.orange {
+      background: rgba(245, 158, 11, 0.12);
+    }
+
+    .feature-icon.cyan {
+      background: rgba(6, 182, 212, 0.12);
+    }
+
+    .feature-card h3 {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .feature-card p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* ── Security Section ── */
+    .security-section {
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .security-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: center;
+    }
+
+    .security-visual {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .security-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      transition: all 0.2s;
+    }
+
+    .security-item:hover {
+      background: var(--bg-card-hover);
+      border-color: rgba(16, 185, 129, 0.2);
+    }
+
+    .security-check {
+      width: 28px;
+      height: 28px;
+      background: rgba(16, 185, 129, 0.15);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .security-item span {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .security-x {
+      width: 28px;
+      height: 28px;
+      background: rgba(239, 68, 68, 0.15);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+
+    .security-text h2 {
+      font-size: clamp(28px, 4vw, 38px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 20px;
+    }
+
+    .security-text p {
+      font-size: 16px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 16px;
+    }
+
+    .security-text .highlight {
+      color: var(--accent-green);
+      font-weight: 600;
+    }
+
+    /* ── Install Section ── */
+    .install-steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .install-step {
+      text-align: center;
+      padding: 32px 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      transition: all 0.3s;
+    }
+
+    .install-step:hover {
+      background: var(--bg-card-hover);
+      transform: translateY(-4px);
+    }
+
+    .step-number {
+      width: 40px;
+      height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--gradient-main);
+      border-radius: 50%;
+      font-weight: 800;
+      font-size: 16px;
+      margin-bottom: 16px;
+    }
+
+    .install-step h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .install-step p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .install-code {
+      max-width: 600px;
+      margin: 40px auto 0;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 20px 24px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 13px;
+      color: var(--accent-green);
+      position: relative;
+      overflow-x: auto;
+    }
+
+    .install-code::before {
+      content: '$ ';
+      color: var(--text-dim);
+    }
+
+    /* ── Platform Section ── */
+    .platform-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .platform-card {
+      text-align: center;
+      padding: 28px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      transition: all 0.3s;
+    }
+
+    .platform-card:hover {
+      background: var(--bg-card-hover);
+      transform: translateY(-3px);
+    }
+
+    .platform-card .platform-icon {
+      font-size: 36px;
+      margin-bottom: 12px;
+    }
+
+    .platform-card h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .platform-card p {
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    /* ── CTA Section ── */
+    .cta-section {
+      text-align: center;
+      padding: 120px 0;
+    }
+
+    .cta-section h2 {
+      font-size: clamp(32px, 5vw, 48px);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      margin-bottom: 20px;
+    }
+
+    .cta-section p {
+      font-size: 18px;
+      color: var(--text-secondary);
+      margin-bottom: 40px;
+      max-width: 500px;
+      margin-inline: auto;
+    }
+
+    .cta-actions {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* ── Footer ── */
+    footer {
+      padding: 40px 0;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+
+    footer .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    footer p {
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 24px;
+    }
+
+    .footer-links a {
+      font-size: 13px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: var(--text-primary);
+    }
+
+    /* ── Scroll Animations ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+      }
+
+      .nav-toggle {
+        display: block;
+      }
+
+      .nav-links.open {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        right: 0;
+        background: rgba(10, 10, 15, 0.95);
+        backdrop-filter: blur(20px);
+        padding: 24px;
+        border-bottom: 1px solid var(--border);
+        gap: 20px;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .security-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .install-steps {
+        grid-template-columns: 1fr;
+      }
+
+      .platform-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-bar {
+        gap: 24px;
+        flex-wrap: wrap;
+      }
+
+      .hero {
+        padding: 100px 24px 60px;
+      }
+
+      footer .container {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 1024px) and (min-width: 769px) {
+      .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Background Glow -->
+  <div class="bg-glow">
+    <div class="orb"></div>
+    <div class="orb"></div>
+    <div class="orb"></div>
+  </div>
+
+  <!-- Navigation -->
+  <nav id="navbar">
+    <div class="container">
+      <a href="#" class="nav-brand">
+        <img src="assets/icon.svg" alt="Antigravity Monitor" width="28" height="28"
+          style="filter:brightness(0) invert(1)">
+        Antigravity Monitor
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#security">Security</a></li>
+        <li><a href="#install">Install</a></li>
+        <li><a href="https://github.com/nextcortex/antigravity-monitor" target="_blank">GitHub</a></li>
+        <li><a href="donate.html" class="nav-cta">💖 Donate</a></li>
+      </ul>
+      <button class="nav-toggle" id="navToggle" aria-label="Menu">☰</button>
+    </div>
+  </nav>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-content">
+        <div class="hero-badge">
+          <span class="dot"></span>
+          v2.0.2 — 100% Local &amp; Secure
+        </div>
+        <h1>
+          Your AI Credits.<br>
+          <span class="gradient-text">Always Visible.</span>
+        </h1>
+        <p>
+          Real-time quota monitoring for Antigravity IDE.
+          Zero telemetry. Zero external calls.
+          Everything stays on <strong>your machine</strong>.
+        </p>
+        <div class="hero-actions">
+          <a href="https://github.com/nextcortex/antigravity-monitor/releases/latest" class="btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            Download v2.0.2
+          </a>
+          <a href="https://github.com/nextcortex/antigravity-monitor" class="btn-secondary" target="_blank"
+            style="background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.2);color:#fff">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
+            </svg>
+            View on GitHub
+          </a>
+        </div>
+        <div class="stats-bar">
+          <div class="stat">
+            <div class="stat-value">58 KB</div>
+            <div class="stat-label">Package size</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">0</div>
+            <div class="stat-label">External calls</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">3</div>
+            <div class="stat-label">Platforms</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">100%</div>
+            <div class="stat-label">Local</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">0</div>
+            <div class="stat-label">Config needed</div>
+          </div>
+        </div>
+        <div style="margin-top:60px;animation:fadeUp 0.8s 0.6s ease forwards;opacity:0">
+          <img src="assets/screenshot.png" alt="Antigravity Monitor Dashboard" id="heroScreenshot"
+            style="max-width:100%;border-radius:16px;border:1px solid rgba(255,255,255,0.08);box-shadow:0 20px 60px rgba(0,0,0,0.5);cursor:zoom-in;transition:transform 0.3s ease"
+            onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+        </div>
+
+        <!-- Lightbox -->
+        <div id="lightbox"
+          style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);z-index:9999;cursor:zoom-out;justify-content:center;align-items:center;opacity:0;transition:opacity 0.3s ease">
+          <img src="assets/screenshot.png" alt="Antigravity Monitor Dashboard"
+            style="max-width:95%;max-height:95%;border-radius:8px;transform:scale(0.95);transition:transform 0.3s ease">
+        </div>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="section-label">Features</span>
+          <h2>Everything you need to stay in control</h2>
+          <p>Monitor your quota, manage cache, and let the agent run hands-free — all from a single sidebar panel.</p>
+        </div>
+        <div class="features-grid">
+          <div class="feature-card reveal">
+            <div class="feature-icon blue"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4f8fff"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10" />
+                <line x1="12" y1="20" x2="12" y2="4" />
+                <line x1="6" y1="20" x2="6" y2="14" />
+              </svg></div>
+            <h3>Real-Time Dashboard</h3>
+            <p>Live circular gauges showing remaining credits with color-coded indicators. Auto-refresh every 90
+              seconds.
+              Notifications at 30% and 10% thresholds.
+            </p>
+          </div>
+          <div class="feature-card reveal">
+            <div class="feature-icon purple"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+              </svg></div>
+            <h3>Usage Analytics</h3>
+            <p>SVG sparkline with Prompt and Flow credit tracking. Session consumption summary with 7-day history
+              retention.</p>
+          </div>
+          <div class="feature-card reveal">
+            <div class="feature-icon green"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+              </svg></div>
+            <h3>Intelligent Auto-Accept</h3>
+            <p>8 VS Code commands, 7 auto-execution policies, and native OS automation with configurable accept/reject
+              keywords. Fully hands-free.</p>
+          </div>
+          <div class="feature-card reveal">
+            <div class="feature-icon pink"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ec4899"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+              </svg></div>
+            <h3>Cache Manager</h3>
+            <p>View brain tasks, conversations, and code contexts. One-click or auto-clean with configurable keep count.
+              Size warnings at 500 MB.</p>
+          </div>
+          <div class="feature-card reveal">
+            <div class="feature-icon orange"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3" />
+                <path
+                  d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+              </svg></div>
+            <h3>Live Config Editor</h3>
+            <p>Edit commands, keywords, settings, and intervals directly from the sidebar. Changes apply instantly.</p>
+          </div>
+          <div class="feature-card reveal">
+            <div class="feature-icon cyan"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#06b6d4"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                <line x1="1" y1="10" x2="23" y2="10" />
+              </svg></div>
+            <h3>Credit Tracking</h3>
+            <p>Prompt and Flow credit monitoring with percentage breakdowns and monthly usage comparison.</p>
+          </div>
+          <div class="feature-card reveal">
+            <div class="feature-icon" style="background:rgba(16,185,129,0.1)"><svg width="24" height="24"
+                viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <rect x="2" y="18" width="20" height="4" rx="1" />
+                <line x1="6" y1="20" x2="6" y2="20" />
+                <line x1="10" y1="20" x2="10" y2="20" />
+                <circle cx="18" cy="20" r="0.5" />
+              </svg></div>
+            <h3>Status Bar</h3>
+            <p>Always-visible quota summary in your editor's bottom bar. See Flash, Pro, Claude, and GPT percentages at
+              a
+              glance. Click to open QuickPick with full details.</p>
+          </div>
+          <div class="feature-card reveal">
+            <div class="feature-icon" style="background:rgba(79,143,255,0.1)"><svg width="24" height="24"
+                viewBox="0 0 24 24" fill="none" stroke="#4f8fff" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                <polyline points="22 4 12 14.01 9 11.01" />
+              </svg></div>
+            <h3>Zero Configuration</h3>
+            <p>Install and it just works. Connects to your local Antigravity instance automatically — no API keys, no
+              URLs, no manual setup required.</p>
+          </div>
+          <div class="feature-card reveal">
+            <div class="feature-icon" style="background:rgba(139,92,246,0.1)"><svg width="24" height="24"
+                viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 6v6l4 2" />
+              </svg></div>
+            <h3>12+ Models Tracked</h3>
+            <p>Individual monitoring for Claude Sonnet, Opus, Gemini Flash, Pro, GPT-OSS and more. Grouped by provider
+              with per-model detail view.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Security -->
+    <section id="security" class="security-section">
+      <div class="container">
+        <div class="security-grid">
+          <div class="security-text reveal">
+            <span class="section-label">Security First</span>
+            <h2>Your data never leaves your machine</h2>
+            <p>
+              Antigravity Monitor communicates <span class="highlight">exclusively with 127.0.0.1</span>.
+              It reads quota data from your local Antigravity language server — nothing else.
+            </p>
+            <p>
+              No analytics. No tracking. No telemetry. Every byte stays local.
+              CSP nonce protection and full input sanitization included.
+            </p>
+          </div>
+          <div class="security-visual reveal">
+            <div class="security-item">
+              <div class="security-check">✓</div>
+              <span>All communication restricted to <strong>127.0.0.1</strong></span>
+            </div>
+            <div class="security-item">
+              <div class="security-check">✓</div>
+              <span>Quota from <strong>local language server</strong> only</span>
+            </div>
+            <div class="security-item">
+              <div class="security-check">✓</div>
+              <span><strong>CSP nonce</strong> secured webview</span>
+            </div>
+            <div class="security-item">
+              <div class="security-x">✕</div>
+              <span>No analytics, tracking, or telemetry</span>
+            </div>
+            <div class="security-item">
+              <div class="security-x">✕</div>
+              <span>No external API calls — ever</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Platforms -->
+    <section>
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="section-label">Cross-Platform</span>
+          <h2>Works everywhere</h2>
+          <p>Native auto-clicker on Windows. CDP-based automation on macOS and Linux.</p>
+        </div>
+        <div class="platform-grid">
+          <div class="platform-card reveal">
+            <div class="platform-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="#4f8fff">
+                <path
+                  d="M3 12V6.5l8-1.1V12H3zm0 5.5V12h8v6.7l-8-1.2zm9-12.4L22 3.5V12H12V5.1zm0 7.4h10v8.5l-10-1.5V12.5z" />
+              </svg></div>
+            <h3>Windows</h3>
+            <p>Native UI Automation — works out of the box</p>
+          </div>
+          <div class="platform-card reveal">
+            <div class="platform-icon">🍎</div>
+            <h3>macOS</h3>
+            <p>CDP via WebSocket — launch with <code>--remote-debugging-port=9000</code></p>
+          </div>
+          <div class="platform-card reveal">
+            <div class="platform-icon">🐧</div>
+            <h3>Linux</h3>
+            <p>CDP via WebSocket — launch with <code>--remote-debugging-port=9000</code></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Install -->
+    <section id="install">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="section-label">Get Started</span>
+          <h2>Install in seconds</h2>
+          <p>Download the VSIX and install it directly in your editor.</p>
+        </div>
+        <div class="install-steps reveal">
+          <div class="install-step">
+            <div class="step-number">1</div>
+            <h3>Download</h3>
+            <p>Get the latest <code>.vsix</code> from GitHub Releases</p>
+          </div>
+          <div class="install-step">
+            <div class="step-number">2</div>
+            <h3>Install</h3>
+            <p>Extensions → <code>...</code> → Install from VSIX</p>
+          </div>
+          <div class="install-step">
+            <div class="step-number">3</div>
+            <h3>Done</h3>
+            <p>Find the monitor icon in your Activity Bar</p>
+          </div>
+        </div>
+        <div class="install-code reveal">
+          antigravity --install-extension nextcortex-antigravity-monitor-2.0.2.vsix
+        </div>
+
+        <div class="section-header reveal" style="margin-top:60px">
+          <span class="section-label">Also available on</span>
+        </div>
+        <div class="install-steps reveal" style="grid-template-columns:repeat(3,1fr)">
+          <a href="https://marketplace.visualstudio.com/items?itemName=nextcortex.nextcortex-antigravity-monitor"
+            target="_blank" class="install-step" style="text-decoration:none;color:inherit">
+            <div class="step-number" style="background:rgba(0,120,212,0.8)">VS</div>
+            <h3>VS Code Marketplace</h3>
+            <p>Search "Antigravity Monitor" in Extensions</p>
+          </a>
+          <a href="https://open-vsx.org/extension/nextcortex/nextcortex-antigravity-monitor" target="_blank"
+            class="install-step" style="text-decoration:none;color:inherit">
+            <div class="step-number" style="background:rgba(139,92,246,0.8)">OV</div>
+            <h3>Open VSX Registry</h3>
+            <p>Eclipse Foundation's open marketplace</p>
+          </a>
+          <a href="https://github.com/nextcortex/antigravity-monitor" target="_blank" class="install-step"
+            style="text-decoration:none;color:inherit">
+            <div class="step-number" style="background:rgba(255,255,255,0.15)"><svg width="16" height="16"
+                viewBox="0 0 24 24" fill="white">
+                <path
+                  d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
+              </svg></div>
+            <h3>Build from Source</h3>
+            <p>Clone, build, and package it yourself</p>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section">
+      <div class="container reveal">
+        <h2>Ready to take <span class="gradient-text">control</span>?</h2>
+        <p>Join developers who monitor their AI credits in real-time, locally and securely.</p>
+        <div class="cta-actions">
+          <a href="https://github.com/nextcortex/antigravity-monitor/releases/latest" class="btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            Download Now
+          </a>
+          <a href="donate.html" class="btn-secondary">
+            💖 Support the project
+          </a>
+        </div>
+        <img src="assets/icon.png" alt="Antigravity Monitor" width="120" height="120"
+          style="margin-top:80px;opacity:0.9">
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container">
+        <p>© 2026 NextCortex. Not affiliated with Google or Antigravity.</p>
+        <div class="footer-links">
+          <a href="https://github.com/nextcortex" target="_blank">GitHub</a>
+          <a href="https://github.com/nextcortex/antigravity-monitor" target="_blank">Source Code</a>
+          <a href="https://github.com/nextcortex/antigravity-monitor/blob/main/LICENSE" target="_blank">MIT License</a>
+          <a href="https://marketplace.visualstudio.com/items?itemName=nextcortex.nextcortex-antigravity-monitor"
+            target="_blank">VS Marketplace</a>
+          <a href="https://open-vsx.org/extension/nextcortex/nextcortex-antigravity-monitor" target="_blank">Open
+            VSX</a>
+          <a href="donate.html">Donate</a>
+        </div>
+      </div>
+    </footer>
+
+    <a href="#" id="scrollTop"
+      style="display:none;position:fixed;bottom:90px;right:32px;width:44px;height:44px;background:rgba(255,255,255,0.1);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.15);border-radius:50%;color:var(--text-primary);font-size:18px;text-decoration:none;z-index:50;align-items:center;justify-content:center;transition:all 0.3s"
+      onmouseover="this.style.background='rgba(255,255,255,0.2)';this.style.transform='translateY(-2px)'"
+      onmouseout="this.style.background='rgba(255,255,255,0.1)';this.style.transform='translateY(0)'"><svg width="18"
+        height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+        stroke-linejoin="round">
+        <polyline points="18 15 12 9 6 15" />
+      </svg></a>
+
+    <script>
+      // Navbar scroll effect
+      const nav = document.getElementById('navbar');
+      window.addEventListener('scroll', () => {
+        nav.classList.toggle('scrolled', window.scrollY > 50);
+        const scrollBtn = document.getElementById('scrollTop');
+        scrollBtn.style.display = window.scrollY > 400 ? 'flex' : 'none';
+      });
+
+      // Mobile nav toggle
+      document.getElementById('navToggle').addEventListener('click', () => {
+        document.getElementById('navLinks').classList.toggle('open');
+      });
+
+      // Scroll reveal
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+      document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+      // Lightbox
+      const lightbox = document.getElementById('lightbox');
+      const lightboxImg = lightbox.querySelector('img');
+      document.getElementById('heroScreenshot').addEventListener('click', () => {
+        lightbox.style.display = 'flex';
+        requestAnimationFrame(() => {
+          lightbox.style.opacity = '1';
+          lightboxImg.style.transform = 'scale(1)';
+        });
+      });
+      lightbox.addEventListener('click', () => {
+        lightbox.style.opacity = '0';
+        lightboxImg.style.transform = 'scale(0.95)';
+        setTimeout(() => { lightbox.style.display = 'none'; }, 300);
+      });
+    </script>
+  </main>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Antigravity Monitor",
+    "operatingSystem": "Windows, macOS, Linux",
+    "applicationCategory": "DeveloperApplication",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "softwareVersion": "2.0.2",
+    "author": { "@type": "Organization", "name": "NextCortex", "url": "https://github.com/nextcortex" },
+    "url": "https://nextcortex.github.io",
+    "downloadUrl": "https://github.com/nextcortex/antigravity-monitor/releases/latest",
+    "screenshot": "https://nextcortex.github.io/assets/screenshot.png",
+    "description": "100% local & secure quota monitor for Antigravity IDE. Real-time dashboard, usage analytics, cache management, and intelligent auto-accept.",
+    "license": "https://opensource.org/licenses/MIT"
+  }
+  </script>
+</body>
+
+</html>
