@@ -4,15 +4,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Donate — Antigravity Monitor</title>
-    <meta name="description" content="Support the Antigravity Monitor project.">
+    <title>Donate — NextCortex</title>
+    <meta name="description"
+        content="Support NextCortex — your donation helps us keep building free, open-source tools.">
     <meta name="theme-color" content="#0a0e17">
     <link rel="canonical" href="https://nextcortex.github.io/donate.html">
     <link rel="icon" type="image/png" href="assets/icon.png">
     <link rel="apple-touch-icon" href="assets/icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <style>
         *,
         *::before,
@@ -33,78 +35,376 @@
             justify-content: center;
             text-align: center;
             padding: 32px;
+            overflow: hidden;
+        }
+
+        /* Animated background particles */
+        .bg-glow {
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at 30% 50%, rgba(79, 143, 255, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 50%, rgba(139, 92, 246, 0.06) 0%, transparent 50%);
+            animation: bgFloat 12s ease-in-out infinite alternate;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes bgFloat {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+
+            100% {
+                transform: translate(-3%, 3%) rotate(3deg);
+            }
         }
 
         .card {
-            max-width: 520px;
+            position: relative;
+            z-index: 1;
+            max-width: 560px;
+            width: 100%;
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 20px;
-            padding: 56px 40px;
-            backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 60px 44px;
+            backdrop-filter: blur(16px);
+            animation: cardIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
 
-        .icon {
-            width: 120px;
-            height: 120px;
-            margin-bottom: 32px;
-            opacity: 0.9;
+        @keyframes cardIn {
+            0% {
+                opacity: 0;
+                transform: translateY(30px) scale(0.96);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .heart-icon {
+            font-size: 3.5rem;
+            margin-bottom: 24px;
+            display: inline-block;
+            animation: heartbeat 2s ease-in-out infinite;
+        }
+
+        @keyframes heartbeat {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            15% {
+                transform: scale(1.15);
+            }
+
+            30% {
+                transform: scale(1);
+            }
+
+            45% {
+                transform: scale(1.1);
+            }
+
+            60% {
+                transform: scale(1);
+            }
         }
 
         h1 {
-            font-size: 1.8rem;
-            font-weight: 700;
+            font-size: 2rem;
+            font-weight: 800;
             margin-bottom: 16px;
+            letter-spacing: -0.02em;
         }
 
         .gradient-text {
-            background: linear-gradient(135deg, #4f8fff, #8b5cf6);
+            background: linear-gradient(135deg, #4f8fff, #8b5cf6, #f472b6);
+            background-size: 200% 200%;
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
+            animation: gradientShift 4s ease-in-out infinite;
+        }
+
+        @keyframes gradientShift {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
         }
 
         p {
             color: #94a3b8;
-            line-height: 1.7;
-            margin-bottom: 24px;
+            line-height: 1.75;
+            margin-bottom: 12px;
             font-size: 1.05rem;
         }
 
-        .btn {
+        p.subtitle {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-bottom: 36px;
+        }
+
+        /* ===== DONATE BUTTON ===== */
+        .donate-btn {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 40px;
+            border: none;
+            border-radius: 16px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+            text-decoration: none;
+            cursor: pointer;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6, #a855f7);
+            background-size: 200% 200%;
+            box-shadow:
+                0 0 20px rgba(139, 92, 246, 0.3),
+                0 0 60px rgba(139, 92, 246, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            animation: btnGlow 3s ease-in-out infinite alternate;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .donate-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent 50%);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        .donate-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(255, 255, 255, 0.1), transparent 30%);
+            animation: rotateSweep 4s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes rotateSweep {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes btnGlow {
+            0% {
+                box-shadow:
+                    0 0 20px rgba(139, 92, 246, 0.3),
+                    0 0 60px rgba(139, 92, 246, 0.1);
+                background-position: 0% 50%;
+            }
+
+            100% {
+                box-shadow:
+                    0 0 30px rgba(139, 92, 246, 0.5),
+                    0 0 80px rgba(139, 92, 246, 0.2);
+                background-position: 100% 50%;
+            }
+        }
+
+        .donate-btn:hover {
+            transform: translateY(-3px) scale(1.04);
+            box-shadow:
+                0 0 40px rgba(139, 92, 246, 0.6),
+                0 0 100px rgba(139, 92, 246, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .donate-btn:hover::before {
+            opacity: 1;
+        }
+
+        .donate-btn:active {
+            transform: translateY(-1px) scale(1.01);
+        }
+
+        .donate-btn .btn-heart {
+            font-size: 1.3rem;
+            filter: drop-shadow(0 0 6px rgba(244, 114, 182, 0.5));
+            animation: miniPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes miniPulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+        }
+
+        /* ===== SPARKLE CONTAINER ===== */
+        .sparkles {
+            position: absolute;
+            inset: -10px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #a78bfa;
+            border-radius: 50%;
+            animation: sparkleFloat 3s ease-in-out infinite;
+            opacity: 0;
+        }
+
+        .sparkle:nth-child(1) {
+            top: 10%;
+            left: 15%;
+            animation-delay: 0s;
+        }
+
+        .sparkle:nth-child(2) {
+            top: 20%;
+            right: 10%;
+            animation-delay: 0.5s;
+        }
+
+        .sparkle:nth-child(3) {
+            bottom: 15%;
+            left: 20%;
+            animation-delay: 1s;
+        }
+
+        .sparkle:nth-child(4) {
+            bottom: 25%;
+            right: 15%;
+            animation-delay: 1.5s;
+        }
+
+        .sparkle:nth-child(5) {
+            top: 50%;
+            left: 5%;
+            animation-delay: 2s;
+        }
+
+        .sparkle:nth-child(6) {
+            top: 40%;
+            right: 5%;
+            animation-delay: 2.5s;
+        }
+
+        @keyframes sparkleFloat {
+
+            0%,
+            100% {
+                opacity: 0;
+                transform: translateY(0) scale(0);
+            }
+
+            50% {
+                opacity: 0.8;
+                transform: translateY(-12px) scale(1);
+            }
+        }
+
+        /* ===== BACK BUTTON ===== */
+        .back-btn {
             display: inline-flex;
             align-items: center;
             gap: 8px;
+            margin-top: 32px;
             padding: 12px 28px;
             border-radius: 12px;
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            color: #e2e8f0;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #94a3b8;
             text-decoration: none;
             font-weight: 500;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             transition: all 0.3s;
         }
 
-        .btn:hover {
-            background: rgba(255, 255, 255, 0.12);
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #e2e8f0;
             transform: translateY(-1px);
         }
 
-        .heart {
-            font-size: 2.5rem;
-            margin-top: 32px;
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 480px) {
+            .card {
+                padding: 40px 24px;
+            }
+
+            h1 {
+                font-size: 1.6rem;
+            }
+
+            .donate-btn {
+                padding: 14px 32px;
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
 
 <body>
+    <div class="bg-glow"></div>
+
     <div class="card">
-        <h1><span class="gradient-text">Thank you</span> for thinking of us</h1>
-        <p>We're not accepting donations at the moment. Antigravity Monitor is free, open source, and built with love.
-        </p>
-        <p>The best way to support us is by starring the project on GitHub and sharing it with others.</p>
-        <a href="index.html" class="btn">← Back to home</a>
+        <!-- Sparkle effects -->
+        <div class="sparkles">
+            <div class="sparkle"></div>
+            <div class="sparkle"></div>
+            <div class="sparkle"></div>
+            <div class="sparkle"></div>
+            <div class="sparkle"></div>
+            <div class="sparkle"></div>
+        </div>
+
+        <div class="heart-icon">💜</div>
+        <h1><span class="gradient-text">Support</span> our work</h1>
+        <p>Your donation helps us keep building free, open-source tools for everyone. Every contribution — big or small
+            — makes a real difference.</p>
+        <p class="subtitle">100% goes to development & infrastructure costs.</p>
+
+        <a href="https://github.com/nextcortex/nextcortex.github.io.git" class="donate-btn" id="donate-button"
+            target="_blank" rel="noopener noreferrer">
+            <span class="btn-heart">❤️</span>
+            Donate Now
+        </a>
+
+        <br>
+        <a href="index.html" class="back-btn" id="back-home-button">← Back to home</a>
     </div>
 </body>
 
